@@ -25,6 +25,8 @@ import time
 inky_display = InkyPHAT("red")
 ## --   ----------------------------------------------------
 
+price_warning_threshold = 10.0
+
 inky_display.set_border(inky_display.WHITE)
 img = Image.new("P", (inky_display.WIDTH, inky_display.HEIGHT))
 draw = ImageDraw.Draw(img)
@@ -173,8 +175,11 @@ for offset in range(0, 48):  ##24h = 48 segments
 
 
 
+if (current_price >= 10.0):
+	font = ImageFont.truetype(FredokaOne, 56)
+else:
+	font = ImageFont.truetype(FredokaOne, 60)
 
-font = ImageFont.truetype(FredokaOne, 60)
 message = "{0:.1f}".format(current_price) + "p"
 w, h = font.getsize(message)
 #x = (inky_display.WIDTH / 2) - (w / 2)
@@ -182,7 +187,7 @@ w, h = font.getsize(message)
 x = 0
 y = -5
 
-if (current_price > 14.8):
+if (current_price > price_warning_threshold):
 	draw.text((x, y), message, inky_display.RED, font)
 else:
 	draw.text((x, y), message, inky_display.BLACK, font)
@@ -192,37 +197,37 @@ right_column = 145
 
 
 # NEXT
-message = "2:" + "{0:.1f}".format(next_price) + "p"
-font = ImageFont.truetype(FredokaOne, 20)
+message = "+30:" + "{0:.1f}".format(next_price) + "p"
+font = ImageFont.truetype(FredokaOne, 18)
 w2, h2 = font.getsize(message)
-x = right_column
+x = right_column-10
 y = 0
-if (next_price > 14.8):
+if (next_price > price_warning_threshold):
 	draw.text((x,y), message, inky_display.RED, font)
 else:
 	draw.text((x, y), message, inky_display.BLACK, font)
 
 # NEXT
-message = "3:" + "{0:.1f}".format(nextp1_price) + "p"
-font = ImageFont.truetype(FredokaOne, 20)
+message = "+60:" + "{0:.1f}".format(nextp1_price) + "p"
+font = ImageFont.truetype(FredokaOne, 18)
 w3, h3 = font.getsize(message)
-x = right_column
+x = right_column-10
 y = 20
 
-if (nextp1_price > 14.8):
+if (nextp1_price > price_warning_threshold):
 	draw.text((x,y), message, inky_display.RED, font)
 else:
 	draw.text((x, y), message, inky_display.BLACK, font)
 
 
 # NEXT
-message = "4:" + "{0:.1f}".format(nextp2_price) + "p"
-font = ImageFont.truetype(FredokaOne, 20)
+message = "+90:" + "{0:.1f}".format(nextp2_price) + "p"
+font = ImageFont.truetype(FredokaOne, 18)
 w3, h3 = font.getsize(message)
-x = right_column
+x = right_column-10
 y = 40
 
-if (nextp2_price > 14.8):
+if (nextp2_price > price_warning_threshold):
 	draw.text((x,y), message, inky_display.RED, font)
 else:
 	draw.text((x, y), message, inky_display.BLACK, font)
@@ -258,19 +263,14 @@ for i in range(0,number_of_vals_to_display):
 		# pixels_per_w defines the horizontal scaling factor (2 seems to work)
 		draw.rectangle((pixels_per_w*i,chart_base_loc,((pixels_per_w*i)-pixels_per_w),(chart_base_loc-scaled_price)),ink_color)
 
-#draw minimum value on chart  <- this doesn't seem to work yet
-# font = ImageFont.truetype(FredokaOne, 15)
-# msg = "{0:.1f}".format(lowest_price_next_24h) + "p"
-# draw.text((4*(minterval-1),110),msg, inky_display.BLACK, font)
-
 # draw the bottom right min price and how many hours that is away
 font = ImageFont.truetype(FredokaOne, 15)
-msg = "min:"+"{0:.1f}".format(lowest_price_next_24h) + "p"
+msg = "min: "+"{0:.1f}".format(lowest_price_next_24h) + "p"
 draw.text((right_column,60), msg, inky_display.BLACK, font)
 # we know how many half hours to min price, now figure it out in hours.
 minterval = (round(prices.index(lowest_price_next_24h)/2))
 print ("minterval:"+str(minterval))
-msg = "in:"+str(minterval)+"hrs"
+msg = "in "+str(minterval) + " hrs"
 draw.text((right_column,75), msg, inky_display.BLACK, font)
 
 # and convert that to an actual time
@@ -284,7 +284,7 @@ min_offset = prices.index(lowest_price_next_24h) * 30
 time_of_cheapest = the_now_local + datetime.timedelta(minutes=min_offset)
 print("cheapest at " + str(time_of_cheapest))
 print("which is: "+ str(time_of_cheapest.time())[0:5])
-time_of_cheapest_formatted = "at " + (str(time_of_cheapest.time())[0:5])
+time_of_cheapest_formatted = "at " + (str(time_of_cheapest.time())[0:5])[:-1] + "0"
 font = ImageFont.truetype(FredokaOne, 15)
 draw.text((right_column,90), time_of_cheapest_formatted, inky_display.BLACK, font)
 
